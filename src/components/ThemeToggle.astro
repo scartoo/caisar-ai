@@ -1,0 +1,67 @@
+---
+// Renders a sun/moon button. The bundled <script> below wires click → flip class
+// on <html>. The inline init script in BaseHead.astro has already set the
+// correct initial state before this component renders, so there is no flash.
+---
+<button
+  id="theme-toggle"
+  type="button"
+  aria-label="Toggle color theme"
+  class="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-accent dark:text-zinc-400 dark:hover:bg-zinc-800"
+>
+  <!-- Moon (shown in light mode) -->
+  <svg
+    class="h-4 w-4 dark:hidden"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+  <!-- Sun (shown in dark mode) -->
+  <svg
+    class="hidden h-4 w-4 dark:block"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+  </svg>
+</button>
+
+<script>
+  const apply = (theme: "dark" | "light") => {
+    const isDark = theme === "dark";
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.dataset.theme = theme;
+  };
+
+  const current = (): "dark" | "light" =>
+    document.documentElement.classList.contains("dark") ? "dark" : "light";
+
+  const wire = () => {
+    const btn = document.getElementById("theme-toggle");
+    if (!btn || btn.dataset.wired) return;
+    btn.dataset.wired = "true";
+    btn.addEventListener("click", () => {
+      const next = current() === "dark" ? "light" : "dark";
+      apply(next);
+      try {
+        localStorage.setItem("theme", next);
+      } catch (_) {
+        // Safari private mode / embedded webview; persistence not available.
+      }
+    });
+  };
+
+  wire();
+</script>
