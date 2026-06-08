@@ -1,0 +1,31 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import PostLayout from "../../layouts/PostLayout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<"posts">;
+}
+
+const { post } = Astro.props;
+const { Content, remarkPluginFrontmatter } = await render(post);
+
+// Compute a cheap reading-time string from word count if the remark plugin
+// hasn't injected one. (We don't add a plugin in v1 — just count words.)
+const wordCount = post.body?.trim().split(/\s+/).length ?? 0;
+const minutes = Math.max(1, Math.round(wordCount / 220));
+const readingTime = remarkPluginFrontmatter?.readingTime ?? `${minutes} min read`;
+---
+
+<PostLayout post={post} readingTime={readingTime}>
+  <Content />
+</PostLayout>
