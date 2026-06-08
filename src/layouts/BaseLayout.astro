@@ -1,0 +1,28 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  pubDate?: string;
+}
+
+const { title, description, ogImage, pubDate } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead {title} {description} {ogImage} {pubDate} />
+  </head>
+  <body class="min-h-screen bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
+    <Header />
+    <main class="mx-auto max-w-2xl px-4 py-12">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
