@@ -1,0 +1,27 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+const { pathname } = Astro.url;
+const isHome = pathname === "/";
+---
+
+<header class="border-b border-zinc-200 dark:border-zinc-800">
+  <div class="mx-auto flex max-w-2xl items-center justify-between px-4 py-4">
+    <a
+      href="/"
+      class="text-base font-semibold tracking-tight text-zinc-900 hover:text-accent dark:text-zinc-100"
+      aria-current={isHome ? "page" : undefined}
+    >
+      Cesar
+    </a>
+    <nav class="flex items-center gap-4 text-sm">
+      <a
+        href="/writing/"
+        class="text-zinc-600 hover:text-accent dark:text-zinc-400"
+        aria-current={pathname.startsWith("/writing") ? "page" : undefined}
+      >
+        Writing
+      </a>
+      <ThemeToggle />
+    </nav>
+  </div>
+</header>
