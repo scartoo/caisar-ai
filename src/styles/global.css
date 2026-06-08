@@ -1,0 +1,106 @@
+/* ---------------------------------------------------------------------------
+ * 1. Fontsource imports — MUST come first.
+ *    CSS @import order is strict: all @import statements must precede any
+ *    other CSS rule, or they are ignored per spec.
+ *    The bare specifier resolves to the wght axis file (weights 100-900 in
+ *    one small woff2), which is what we want for body + headings.
+ * ------------------------------------------------------------------------- */
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
+
+/* ---------------------------------------------------------------------------
+ * 2. Tailwind v4 single-line import.
+ * ------------------------------------------------------------------------- */
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+ * 3. Plugins are registered in CSS in v4 (no tailwind.config.js needed).
+ * ------------------------------------------------------------------------- */
+@plugin "@tailwindcss/typography";
+
+/* ---------------------------------------------------------------------------
+ * 4. Dark variant.
+ *    Tailwind v4 removed the JS `darkMode: 'class'` option. Without this
+ *    @custom-variant line, `dark:` utilities only respond to
+ *    prefers-color-scheme and the manual toggle silently does nothing.
+ *    The :where() wrapper keeps specificity at 0 so utility ordering wins.
+ * ------------------------------------------------------------------------- */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+ * 5. Design tokens.
+ *    Anything declared in @theme becomes both a CSS variable AND a utility
+ *    class (e.g. --color-accent → bg-accent / text-accent / border-accent).
+ *    @theme blocks must be top-level — never nested under :root or a media
+ *    query (Tailwind enforces this at parse time).
+ *
+ *    The font family name is "Inter Variable" (with the Variable suffix) —
+ *    that's what Fontsource registers in the @font-face src. Using plain
+ *    "Inter" silently falls back to system fonts. Same for JetBrains Mono.
+ * ------------------------------------------------------------------------- */
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system,
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular,
+               Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  /* Muted blue accent. Adjust to taste in Open Items follow-up.
+   * oklch() is the v4-idiomatic wide-gamut color space. */
+  --color-accent: oklch(0.55 0.13 250);
+  --color-accent-fg: oklch(0.98 0.01 250);
+}
+
+/* ---------------------------------------------------------------------------
+ * 6. Base layer overrides.
+ * ------------------------------------------------------------------------- */
+@layer base {
+  /* Make sans the document default so unstyled elements pick it up. */
+  html {
+    font-family: var(--font-sans);
+    /* Native form controls + scrollbars follow the theme. Tailwind v4 does
+     * not set color-scheme automatically in class mode. */
+    color-scheme: light dark;
+  }
+  /* Stop Safari's default 16px text-size bump on focus inside <input>. */
+  html { -webkit-text-size-adjust: 100%; }
+  code, pre, kbd, samp { font-family: var(--font-mono); }
+}
+
+/* ---------------------------------------------------------------------------
+ * 7. Shiki dual-theme code blocks (class-based switching).
+ *    astro.config.mjs (Task 3) sets shikiConfig.themes { light, dark } +
+ *    defaultColor:false, so Shiki emits ONLY CSS variables (no baked-in
+ *    colors). We therefore MUST style BOTH the default (light) state and the
+ *    .dark state — a lone html.dark rule would leave light mode unstyled.
+ *    Astro's wrapper class is .astro-code (its rename of Shiki's .shiki).
+ *    Token color/font vars live on the child <span>s; background vars live on
+ *    the <pre>. We override color, background, AND the three emphasis vars so
+ *    italic/bold/underlined tokens track the active theme.
+ * ------------------------------------------------------------------------- */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+  font-style: var(--shiki-light-font-style);
+  font-weight: var(--shiki-light-font-weight);
+  text-decoration: var(--shiki-light-text-decoration);
+}
+
+html.dark .astro-code,
+html.dark .astro-code span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+  font-style: var(--shiki-dark-font-style);
+  font-weight: var(--shiki-dark-font-weight);
+  text-decoration: var(--shiki-dark-text-decoration);
+}
+
+/* @tailwindcss/typography `prose pre` ships its own background that would
+ * repaint over Shiki's <pre>. Re-assert Shiki's bg on the code block in both
+ * themes so the github-light / github-dark backgrounds show through. */
+.prose pre.astro-code {
+  background-color: var(--shiki-light-bg);
+}
+html.dark .prose pre.astro-code {
+  background-color: var(--shiki-dark-bg);
+}
