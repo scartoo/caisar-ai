@@ -1,0 +1,32 @@
+---
+import type { CollectionEntry } from "astro:content";
+import FormattedDate from "./FormattedDate.astro";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+}
+const { post } = Astro.props;
+const href = `/writing/${post.id}/`;
+---
+
+<article class="py-5 border-b border-zinc-200 last:border-b-0 dark:border-zinc-800">
+  <a href={href} class="group block">
+    <FormattedDate
+      date={post.data.pubDate}
+      class="block text-xs text-zinc-500 dark:text-zinc-400"
+    />
+    <h2 class="mt-1 text-base font-semibold tracking-tight text-zinc-900 group-hover:text-accent dark:text-zinc-100">
+      {post.data.title}
+    </h2>
+    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+      {post.data.summary}
+    </p>
+    {post.data.tags.length > 0 && (
+      <ul class="mt-2 flex flex-wrap gap-1.5">
+        {post.data.tags.map((tag) => (
+          <li class="text-xs text-zinc-500 dark:text-zinc-500">#{tag}</li>
+        ))}
+      </ul>
+    )}
+  </a>
+</article>
