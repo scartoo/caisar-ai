@@ -4,9 +4,12 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
+import cloudflare from '@astrojs/cloudflare';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://caisar.ai',
+
   integrations: [
     mdx(),
     sitemap({
@@ -17,6 +20,7 @@ export default defineConfig({
       filter: (page) => !page.includes('/404'),
     }),
   ],
+
   markdown: {
     // Shiki dual themes with class-based switching. defaultColor:false makes
     // Shiki emit ONLY CSS variables (no baked-in inline colors), so the `.dark`
@@ -32,7 +36,10 @@ export default defineConfig({
       defaultColor: false,
     },
   },
+
   vite: {
     plugins: [tailwindcss()],
   },
+
+  adapter: cloudflare(),
 });
